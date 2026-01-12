@@ -1,58 +1,62 @@
 # 🎸 GuitarShopApp – ASP.NET Core 8 Onion Architecture E-Commerce
 
+![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet&logoColor=white)
+![Architecture](https://img.shields.io/badge/Onion-Architecture-blueviolet)
+![License](https://img.shields.io/github/license/kaganemre/guitarshop-mvc-api)
+
 🧱 ASP.NET Core Web API + MVC  
 
-💼 E-ticaret ürün yönetimi, kullanıcı rolleri ve ödeme akışı içeren çok katmanlı .NET 8 uygulaması.  
+💼 A multi-layered .NET 8 e-commerce application featuring product management, user roles, and a complete payment flow.
 
-Bu proje, **Onion Architecture** prensipleriyle yapılandırılmış bir **ASP.NET Core 8** uygulamasıdır.  
-Onion mimarisi, uygulama katmanları arasındaki bağımlılığı en aza indirerek değişikliklerin en düşük maliyetle yapılabilmesini sağlar.  
+This project is an **ASP.NET Core 8** application structured according to **Onion Architecture** principles.  
+The Onion Architecture minimizes dependencies between application layers, allowing changes to be made with minimal cost and impact.
 
-Web API ve MVC (UI) katmanları ayrı tutulmuş olup, API üzerinden CRUD işlemlerini destekleyen çok katmanlı bir yapı sunar. MVC projesi API üzerinden verileri alıp dinamik view'lar oluşturur.  
+The Web API and MVC (UI) layers are kept separate, providing a multi-layered structure that supports CRUD operations through the API.  
+The MVC project consumes the API and renders dynamic views based on the retrieved data.
 
-Kullanıcı rollerine göre ürün listeleme, ekleme, güncelleme ve silme işlemleri yapılabilir.  
-Ürünler sayfasından ürünler sepete eklenip ödeme yapılabilir.  
-Ödeme süreci için **iyzico** entegrasyonu sağlanmıştır.  
-Proje, **Docker Compose** ile kolayca ayağa kaldırılabilir.
-
+Product listing, creation, updating, and deletion operations are performed based on user roles.  
+Products can be added to the cart from the products page, and payments can be completed through the checkout flow.  
+The payment process is integrated with **iyzico**.  
+The project can be easily started using **Docker Compose**.
 
 ---
 
-## 🚀 Teknolojiler ve Özellikler
+## 🚀 Technologies & Features
 
 * 🧩 .NET 8
 * 🧅 Onion Architecture (Domain / Application / Infrastructure / Web)
 * 🗃️ Entity Framework Core (PostgreSQL)
 * 🧰 Repository & Unit of Work Pattern
-* 🔐 Identity (Cookie + JWT tabanlı kimlik doğrulama)
+* 🔐 Identity (Cookie + JWT-based authentication)
 * 🧾 Authorization
 * 🔁 AutoMapper
 * ✅ FluentValidation
 * ⚙️ Hangfire
 * 📜 Swagger
-* 🔄 CORS yapılandırması
-* 💻 Bootstrap 5 + AJAX UI entegrasyonu
-* 🐳 Dockerfile (WebAPI / WebUI) ve `docker-compose.yml`
+* 🔄 CORS configuration
+* 💻 Bootstrap 5 + AJAX UI integration
+* 🐳 Dockerfile (WebAPI / WebUI) and `docker-compose.yml`
 
-📁 **Ana dosyalar:** `GuitarShopApp.sln`, `docker-compose.yml`, `Dockerfile-WebAPI`, `Dockerfile-WebUI`
+📁 **Main files:** `GuitarShopApp.sln`, `docker-compose.yml`, `Dockerfile-WebAPI`, `Dockerfile-WebUI`
 
 ---
 
-## 🧱 Mimari ve Proje Yapısı
+## 🧱 Architecture & Project Structure
 
-Proje **Onion Architecture**’a göre katmanlara ayrılmıştır:
+The project is structured according to **Onion Architecture**:
 
-* 🧩 **Domain** → Entity.
-* 🧠 **Application** → Use case’ler, DTO’lar, servis interface'leri, validation, AutoMapper profilleri.
-* 💾 **Infrastructure** → EF Core implementasyonları, Repository, UnitOfWork, Identity, Hangfire.
-* 🌍 **WebAPI / WebUI** → Controller, Middleware, Swagger, Program.cs konfigürasyonu.
+* 🧩 **Domain** → Entities.
+* 🧠 **Application** → Use cases, DTOs, service interfaces, validation, AutoMapper profiles.
+* 💾 **Infrastructure** → EF Core implementations, Repository, Unit of Work, Identity, Hangfire.
+* 🌍 **WebAPI / WebUI** → Controllers, Middleware, Swagger, Program.cs configuration.
 
-> 💡 Katmanlar arası bağımlılıklar ters çevrilerek (Dependency Inversion) **loose coupling** sağlanır.
+> 💡 By inverting dependencies between layers (Dependency Inversion), **loose coupling** is achieved.
 
 ---
 
 ## 🌐 Web API
 
-### GetProducts() metodunda belirlediğimiz alanları veritabanından çekiyoruz.
+### Retrieving specific fields from the database in the `GetProducts()` method
 
 ```csharp
 [ApiController]
@@ -62,6 +66,7 @@ public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
     private readonly IMapper _mapper;
+
     public ProductsController(IProductService productService, IMapper mapper)
     {
         _productService = productService;
@@ -70,18 +75,18 @@ public class ProductsController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetProducts() // DTO ile belirlediğimiz alanları veritabanından çekiyoruz.
+    public async Task<IActionResult> GetProducts() // Fetching selected fields via DTOs
     {
         return Ok(_mapper.Map<IEnumerable<ProductDTO>>(await _productService.GetAll()));
     }
-    // Diğer action metodları burada yer alır
+    // Other action methods are defined here
 }
 ```
 ---
 
 ## 🖥️ Web UI (MVC)
 
-### HttpClient ile API'den tüm ürünleri alıyoruz.
+### Fetching all products from the API using HttpClient
 
 ```csharp
 public class ProductApiService
@@ -96,16 +101,16 @@ public class ProductApiService
 
     public async Task<IEnumerable<ProductDTO>> GetAll()
     {
-        var response = await _httpClient.GetAsync(""); 
+        var response = await _httpClient.GetAsync("");
         string apiResponse = await response.Content.ReadAsStringAsync();
         var products = JsonSerializer.Deserialize<IEnumerable<ProductDTO>>(apiResponse, options);
 
         return products ?? [];
     }
-   // Diğer servis metodları burada yer alır
+    // Other service methods are defined here
 }
 ```
-### API'den alıdığımız ürün listesini view olarak döndürüyoruz.
+### Returning the product list received from the API as a view
 
 ```csharp
 [Authorize(Roles = "admin")]
@@ -115,7 +120,10 @@ public class HomeController : Controller
     private readonly CategoryApiService _categoryApiService;
     private readonly IMapper _mapper;
 
-    public HomeController(ProductApiService productApiService, CategoryApiService categoryApiService, IMapper mapper)
+    public HomeController(
+        ProductApiService productApiService,
+        CategoryApiService categoryApiService,
+        IMapper mapper)
     {
         _productApiService = productApiService;
         _categoryApiService = categoryApiService;
@@ -130,36 +138,42 @@ public class HomeController : Controller
 
         return View(await _productApiService.GetProductsByCategory(category));
     }
-   // Diğer action metodları burada yer alır
+    // Other action methods are defined here
 }
 ```
-### 🖼️ Ürünler Sayfası
 
-#### Kategoriye bağlı olarak ürünler listelenebilir.
+### 🖼️ Products Page
+
+#### Products can be listed based on category
 <img width="1637" height="982" alt="image" src="https://github.com/user-attachments/assets/7dab3046-10ae-42d2-b6bb-426e5a8eb8b0" />
 
 ---
 
-## 📦 Başlarken
+## 📦 Getting Started
 
-### Clone repo
+### Clone the repository
 
 ```bash
 $ git clone https://github.com/kaganemre/guitarshop-mvc-api.git
 ```
-### Web API Projesi
-Çalıştırmadan önce PostgreSQL de HangfireDB isminde boş bir veritabanı oluşturulması gerekir. dotnet run ile projeyi çalıştırdıktan sonra migration'lar otomatik olarak veritabanına aktarılacaktır.
+### Web API Project
+Before running the project, an empty PostgreSQL database named HangfireDB must be created.
+After starting the project using dotnet run, migrations will be applied automatically to the database.
 
-### MVC Projesi
+### MVC Project
 ```bash
 $ dotnet tool install -g Microsoft.Web.LibraryManager.Cli
 ```
 
-Libman paket yöneticisini kurduktan sonra libman restore komutu ile kütüphaneleri yükleyiniz.
+After installing the LibMan package manager, restore the libraries using:
+
+```bash
+$ libman restore
+```
 
 ---
 
-## 📄 Lisans
-Bu proje MIT Lisansı altında lisanslanmıştır.
+## 📄 License
 
----
+This project is licensed under the **MIT License**.  
+See the [LICENSE](LICENSE) file for details.
