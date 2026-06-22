@@ -10,42 +10,41 @@ namespace GuitarShopApp.WebAPI.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ProductsController : ControllerBase
+public class ProductsController(IProductService productService, IMapper mapper) : ControllerBase
 {
-    private readonly IProductService _productService;
-    private readonly IMapper _mapper;
-    public ProductsController(IProductService productService, IMapper mapper)
-    {
-        _productService = productService;
-        _mapper = mapper;
-    }
+    private readonly IProductService _productService = productService;
+    private readonly IMapper _mapper = mapper;
 
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetProducts()
     {
-        return Ok(_mapper.Map<IEnumerable<ProductDTO>>(await _productService.GetAll()));
+        var products = await _productService.GetAll();
+        return Ok(_mapper.Map<IEnumerable<ProductDTO>>(products));
     }
 
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetProduct(int? id)
+    public async Task<IActionResult> GetProduct(int id)
     {
-        return Ok(_mapper.Map<ProductDTO>(await _productService.GetById(id)));
+        var product = await _productService.GetById(id);
+        return Ok(_mapper.Map<ProductDTO>(product));
     }
     
     [HttpGet("get-by-category/{name?}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetProductsByCategory(string name="")
     {
-        return Ok(_mapper.Map<IEnumerable<ProductDTO>>(await _productService.GetProductsByCategory(name)));
+        var products = await _productService.GetProductsByCategory(name);
+        return Ok(_mapper.Map<IEnumerable<ProductDTO>>(products));
     }
     
     [HttpPost]
     public async Task<IActionResult> CreateProduct(ProductDTO model)
     {
-        var newProduct = _mapper.Map<ProductDTO>(await _productService.CreateAsync(_mapper.Map<Product>(model)));
-        return CreatedAtAction(nameof(GetProduct), new { id = newProduct.Id }, newProduct);
+        var created = await _productService.CreateAsync(_mapper.Map<Product>(model));
+        var result = _mapper.Map<ProductDTO>(created);
+        return CreatedAtAction(nameof(GetProduct), new { id = result.Id }, result);
     }
 
     [HttpPut]
@@ -62,5 +61,4 @@ public class ProductsController : ControllerBase
         _productService.Delete(await _productService.GetById(id));
         return NoContent();
     }
-
 }
