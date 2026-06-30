@@ -1,10 +1,9 @@
-using GuitarShopApp.Application.Interfaces.Context;
 using GuitarShopApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace GuitarShopApp.Persistence.Context;
 
-public class ShopAppDbContext : DbContext, IShopAppContext
+public class ShopAppDbContext : DbContext
 {
     public ShopAppDbContext(DbContextOptions<ShopAppDbContext> options) : base(options)
     {
