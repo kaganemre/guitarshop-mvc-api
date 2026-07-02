@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
-using AutoMapper;
 using GuitarShopApp.WebUI.ApiService;
 using GuitarShopApp.Application.DTO;
+using GuitarShopApp.WebUI.Models;
 
 namespace GuitarShopApp.WebUI.Controllers;
 
@@ -12,12 +12,10 @@ public class HomeController : Controller
 {
     private readonly ProductApiService _productApiService;
     private readonly CategoryApiService _categoryApiService;
-    private readonly IMapper _mapper;
-    public HomeController(ProductApiService productApiService, CategoryApiService categoryApiService, IMapper mapper)
+    public HomeController(ProductApiService productApiService, CategoryApiService categoryApiService)
     {
         _productApiService = productApiService;
         _categoryApiService = categoryApiService;
-        _mapper = mapper;
     }
 
     [AllowAnonymous]
@@ -44,7 +42,7 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromForm] ProductDTO model)
+    public async Task<IActionResult> Create([FromForm] ProductViewModel model)
     {
         if (ModelState.IsValid)
         {
@@ -72,7 +70,7 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit([FromForm] ProductDTO model)
+    public async Task<IActionResult> Edit([FromForm] ProductViewModel model)
     {
         if (ModelState.IsValid)
         {
@@ -84,8 +82,7 @@ public class HomeController : Controller
 
             try
             {
-                entity = _mapper.Map<ProductDTO>(model);
-                await _productApiService.UpdateAsync(entity);
+                await _productApiService.UpdateAsync(model);
                 return RedirectToAction("List");
             }
             catch (Exception)

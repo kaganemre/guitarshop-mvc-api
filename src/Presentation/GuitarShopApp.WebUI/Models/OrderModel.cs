@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using GuitarShopApp.Domain.Common;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace GuitarShopApp.Application.Models;
+namespace GuitarShopApp.WebUI.Models;
 
 public class OrderModel : BaseEntity
 {

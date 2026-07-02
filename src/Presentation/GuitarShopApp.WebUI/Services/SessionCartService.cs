@@ -1,10 +1,7 @@
 using System.Text.Json.Serialization;
-using GuitarShopApp.Application.Models;
-using GuitarShopApp.Domain.Entities;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+using GuitarShopApp.WebUI.Models;
 
-namespace GuitarShopApp.Persistence.Services;
+namespace GuitarShopApp.WebUI.Services;
 public class SessionCartService : CartViewModel
 {
     public static CartViewModel GetCart(IServiceProvider services)
@@ -17,12 +14,12 @@ public class SessionCartService : CartViewModel
 
     [JsonIgnore]
     public ISession? Session { get; set; }
-    public override void AddItem(Product product, int quantity)
+    public override void AddItem(ProductViewModel product, int quantity)
     {
         base.AddItem(product, quantity);
         Session?.SetJson("Cart", this);
     }
-    public override void RemoveItem(Product product)
+    public override void RemoveItem(ProductViewModel product)
     {
         base.RemoveItem(product);
         Session?.SetJson("Cart", this);

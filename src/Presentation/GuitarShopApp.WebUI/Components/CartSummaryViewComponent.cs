@@ -1,4 +1,4 @@
-using GuitarShopApp.Application.Models;
+using GuitarShopApp.WebUI.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GuitarShopApp.WebUI.Components;

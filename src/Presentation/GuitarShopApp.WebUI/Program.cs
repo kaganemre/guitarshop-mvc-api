@@ -1,10 +1,10 @@
 using GuitarShopApp.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using GuitarShopApp.Application.Models;
-using GuitarShopApp.Persistence.Services;
 using GuitarShopApp.WebUI.ApiService;
 using GuitarShopApp.Application.Interfaces.Services;
 using GuitarShopApp.Application.Mapping;
+using GuitarShopApp.WebUI.Models;
+using GuitarShopApp.WebUI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,14 +19,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
     });
 
-builder.Services.AddTransient<IEmailService, SmtpEmailService>(i =>
-                new SmtpEmailService(
-                    builder.Configuration["EmailService:Host"],
-                    builder.Configuration.GetValue<int>("EmailService:Port"),
-                    builder.Configuration.GetValue<bool>("EmailService:EnableSSL"),
-                    builder.Configuration["EmailService:Username"],
-                    builder.Configuration["EmailService:Password"]
-                ));
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddAutoMapper(typeof(GeneralMapping).Assembly);
 builder.Services.AddDistributedMemoryCache();
@@ -49,7 +42,7 @@ builder.Services.AddHttpClient<CategoryApiService>(options =>
     options.BaseAddress = new Uri(baseUri + "categories/")
 );
 builder.Services.AddHttpClient<OrderApiService>(options =>
-    options.BaseAddress = new Uri(baseUri + "orders/")
+    options.BaseAddress = new Uri(baseUri + "orders")
 );
 builder.Services.AddHttpClient<UserApiService>(options =>
     options.BaseAddress = new Uri(baseUri + "shop/")

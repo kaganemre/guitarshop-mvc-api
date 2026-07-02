@@ -1,10 +1,13 @@
 using System.Text;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using GuitarShopApp.Application;
+using GuitarShopApp.Application.Features.Commands;
 using GuitarShopApp.Infrastructure;
-using GuitarShopApp.Infrastructure.Attributes;
 using GuitarShopApp.Persistence;
 using GuitarShopApp.Persistence.Background;
 using GuitarShopApp.Persistence.Context;
+using GuitarShopApp.WebAPI.Attributes;
 using GuitarShopApp.WebAPI.Middlewares;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -46,7 +49,12 @@ builder.Services.AddHangfireServer();
 
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginUserValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>();

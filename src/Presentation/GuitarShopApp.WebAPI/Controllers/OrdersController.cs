@@ -27,7 +27,7 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateOrder(OrderDTO model)
+    public async Task<IActionResult> CreateOrder([FromBody] OrderDTO model)
     {
         var entity = _mapper.Map<Order>(model);
         await _orderService.CreateAsync(entity);

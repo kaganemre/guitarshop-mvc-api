@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace GuitarShopApp.Infrastructure.Attributes;
+namespace GuitarShopApp.WebAPI.Attributes;
 
 public class ValidationFilter : IAsyncActionFilter
 {

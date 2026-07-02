@@ -6,7 +6,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Iyzipay" Version="2.1.61" />
+    <PackageReference Include="Iyzipay" Version="2.1.78" />
   </ItemGroup>
 
   <PropertyGroup>

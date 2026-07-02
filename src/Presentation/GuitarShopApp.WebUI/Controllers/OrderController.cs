@@ -1,11 +1,9 @@
-using AutoMapper;
-using GuitarShopApp.Application.DTO;
-using GuitarShopApp.Application.Models;
+using System.Globalization;
 using GuitarShopApp.WebUI.ApiService;
+using GuitarShopApp.WebUI.Models;
 using Iyzipay;
 using Iyzipay.Model;
 using Iyzipay.Request;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GuitarShopApp.WebUI.Controllers;
@@ -15,16 +13,13 @@ public class OrderController : Controller
     private readonly CartViewModel cart;
     private readonly OrderApiService _orderApiService;
     private readonly UserApiService _userApiService;
-    private readonly IMapper _mapper;
     public OrderController(CartViewModel cartService, 
-    OrderApiService orderApiService, 
-    IMapper mapper,
+    OrderApiService orderApiService,
     UserApiService userApiService)
     {
         cart = cartService;
         _orderApiService = orderApiService;
         _userApiService = userApiService;
-        _mapper = mapper;
     }
     public IActionResult Checkout()
     {
@@ -41,25 +36,18 @@ public class OrderController : Controller
 
         if (ModelState.IsValid)
         {
-            var order = _mapper.Map<OrderDTO>(model);
-            order.OrderDate = DateTime.Now;
             var user = await _userApiService.GetByEmail(email);
-            order.UserId = user.Id.ToString();
-            order.OrderItems = cart.Items.Select(i => new OrderItemDTO
-            {
-                ProductId = i.Product.Id,
-                Price = i.Product.Price,
-                Quantity = i.Quantity
-            }).ToList();
-
+            
             model.Cart = cart;
-            var payment = ProcessPayment(model);
+            var payment = await ProcessPayment(model);
+            
             if (payment.Status == "success")
             {
-                var currentOrder = await _orderApiService.CreateAsync(order);
+                var currentOrder = await _orderApiService.CreateAsync(model, user.Id.ToString(), cart.Items);
                 cart.Clear();
                 return RedirectToAction("Completed", new { OrderId = currentOrder.Id });
             }
+            
             model.Cart = cart;
             return View(model);
         }
@@ -70,7 +58,7 @@ public class OrderController : Controller
         }
 
     }
-    private Payment ProcessPayment(OrderModel model)
+    private async Task<Payment> ProcessPayment(OrderModel model)
     {
         Options options = new Options();
         options.ApiKey = "";
@@ -80,8 +68,8 @@ public class OrderController : Controller
         CreatePaymentRequest request = new CreatePaymentRequest();
         request.Locale = Locale.TR.ToString();
         request.ConversationId = new Random().Next(111111111, 999999999).ToString();
-        request.Price = model?.Cart?.CalculateTotal().ToString();
-        request.PaidPrice = model?.Cart?.CalculateTotal().ToString(); ;
+        request.Price = model?.Cart?.CalculateTotal().ToString("F2", CultureInfo.InvariantCulture);
+        request.PaidPrice = model?.Cart?.CalculateTotal().ToString("F2", CultureInfo.InvariantCulture); ;
         request.Currency = Currency.TRY.ToString();
         request.Installment = 1;
         request.BasketId = "B67832";
@@ -98,16 +86,16 @@ public class OrderController : Controller
         request.PaymentCard = paymentCard;
 
         Buyer buyer = new Buyer();
-        buyer.Id = "BY789";
+        buyer.Id = Guid.NewGuid().ToString();
         buyer.Name = model?.Name;
-        buyer.Surname = model?.Name;
+        buyer.Surname = "Doe";
         buyer.GsmNumber = model?.Phone;
         buyer.Email = model?.Email;
         buyer.IdentityNumber = "74300864791";
-        buyer.LastLoginDate = "2015-10-05 12:43:35";
-        buyer.RegistrationDate = "2013-04-21 15:12:09";
+        buyer.LastLoginDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        buyer.RegistrationDate = DateTime.Now.AddYears(-1).ToString("yyyy-MM-dd HH:mm:ss");
         buyer.RegistrationAddress = model?.AddressLine;
-        buyer.Ip = "85.34.78.112";
+        buyer.Ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
         buyer.City = model?.City;
         buyer.Country = "Turkey";
         buyer.ZipCode = "34732";
@@ -133,20 +121,35 @@ public class OrderController : Controller
 
         foreach (var item in model?.Cart?.Items ?? Enumerable.Empty<CartItemModel>())
         {
-            BasketItem firstBasketItem = new BasketItem();
-            firstBasketItem.Id = item.Product.Id.ToString();
-            firstBasketItem.Name = item.Product.Name;
-            firstBasketItem.Category1 = item.Product.CategoryId.ToString();
-            firstBasketItem.ItemType = BasketItemType.PHYSICAL.ToString();
-            firstBasketItem.Price = item.Product.Price.ToString();
-            basketItems.Add(firstBasketItem);
+            for (int i = 0; i < item.Quantity; i++)
+            {
+                BasketItem basketItem = new BasketItem
+                {
+                    Id = $"{item.Product.Id}_{i}",
+                    Name = item.Product.Name,
+                    Category1 = item.Product.CategoryId.ToString(),
+                    ItemType = BasketItemType.PHYSICAL.ToString(),
+                    Price = item.Product.Price.ToString("F2", CultureInfo.InvariantCulture)
+                };
+                basketItems.Add(basketItem);
+            }
         }
 
 
 
         request.BasketItems = basketItems;
 
-        Payment payment = Payment.Create(request, options);
+        var payment = await Payment.Create(request, options);
+        
+        var request2 = new RetrievePaymentRequest
+        {
+            Locale = Locale.TR.ToString(),
+            ConversationId = payment.ConversationId,
+            PaymentId = payment.PaymentId
+        };
+
+        var result = await Payment.Retrieve(request2, options);
+        
         return payment;
     }
     public IActionResult Completed(int orderId)

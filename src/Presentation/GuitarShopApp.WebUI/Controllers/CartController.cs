@@ -1,7 +1,7 @@
 using AutoMapper;
-using GuitarShopApp.Application.Models;
 using GuitarShopApp.Domain.Entities;
 using GuitarShopApp.WebUI.ApiService;
+using GuitarShopApp.WebUI.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GuitarShopApp.WebUI.Controllers;
@@ -9,12 +9,10 @@ namespace GuitarShopApp.WebUI.Controllers;
 public class CartController : Controller
 {
     private readonly ProductApiService _productApiService;
-    private readonly IMapper _mapper;
-    public CartController(ProductApiService productApiService, CartViewModel cartService, IMapper mapper)
+    public CartController(ProductApiService productApiService, CartViewModel cartService)
     {
         _productApiService = productApiService;
         Cart = cartService;
-        _mapper = mapper;
     }
 
     public CartViewModel? Cart { get; set; }
@@ -30,8 +28,7 @@ public class CartController : Controller
         
         if (product != null)
         {
-            var p = _mapper.Map<Product>(product);
-            Cart?.AddItem(p, 1);
+            Cart?.AddItem(product, 1);
         }
 
         return View(Cart);

@@ -1,11 +1,9 @@
 using System.Net;
 using GuitarShopApp.Application.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
-namespace GuitarShopApp.Infrastructure.Attributes;
+namespace GuitarShopApp.WebAPI.Attributes;
 
 public class NotFoundExceptionHandler(ILogger<NotFoundExceptionHandler> logger) : IExceptionHandler
 {

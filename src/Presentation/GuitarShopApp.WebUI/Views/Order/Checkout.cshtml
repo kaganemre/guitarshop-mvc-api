@@ -1,5 +1,6 @@
 @using System.Globalization
-@model OrderModel
+@using GuitarShopApp.WebUI.Models
+@model GuitarShopApp.WebUI.Models.OrderModel
 
 <h1>Checkout</h1>
 <hr>
@@ -8,7 +9,6 @@
         <h4 class="mb-3">Order Detail</h4>
         <div asp-validation-summary="All" class="text-danger"></div>
         <form method="post" asp-action="Checkout">
-            <input type="hidden" name="email" value="@User?.FindFirst("Email")?.Value">
             <div class="mb-3">
                 <label asp-for="@Model.Name"></label>
                 <input asp-for="@Model.Name" class="form-control">

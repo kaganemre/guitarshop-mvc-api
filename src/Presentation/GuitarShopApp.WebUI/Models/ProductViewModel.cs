@@ -1,4 +1,4 @@
-namespace GuitarShopApp.Application.Models;
+namespace GuitarShopApp.WebUI.Models;
 
 public class ProductViewModel
 {

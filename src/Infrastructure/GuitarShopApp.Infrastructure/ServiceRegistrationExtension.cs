@@ -6,13 +6,9 @@ namespace GuitarShopApp.Infrastructure
 {
     public static class ServiceRegistrationExtension
     {
-        public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
+        public static IServiceCollection AddInfrastructureServices(
+            this IServiceCollection services, IConfiguration configuration)
         {
-            IConfigurationRoot configuration = new ConfigurationBuilder().
-            AddJsonFile(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), 
-            @"../../Presentation/GuitarShopApp.WebAPI/appsettings.Development.json")), optional: true)
-            .Build();
-            
             services.AddTransient<IEmailService, SmtpEmailService>(i =>
                 new SmtpEmailService(
                     configuration["EmailService:Host"],
@@ -24,6 +20,5 @@ namespace GuitarShopApp.Infrastructure
 
             return services;
         }
-
     }
 }

@@ -1,7 +1,6 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Http;
 
-namespace GuitarShopApp.Persistence.Services;
+namespace GuitarShopApp.WebUI.Services;
 
 public static class SessionExtensions
 {

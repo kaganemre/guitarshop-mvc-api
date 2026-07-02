@@ -1,9 +1,8 @@
 using System.Security.Claims;
 using AutoMapper;
-using GuitarShopApp.Application.DTO;
 using GuitarShopApp.Application.Interfaces.Services;
-using GuitarShopApp.Application.Models;
 using GuitarShopApp.WebUI.ApiService;
+using GuitarShopApp.WebUI.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +12,6 @@ namespace GuitarShopApp.WebUI.Controllers;
 public class AccountController : Controller
 {
     private readonly UserApiService _userApiService;
-    private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
 
     public AccountController(
@@ -22,7 +20,6 @@ public class AccountController : Controller
                             IMapper mapper)
     {
         _userApiService = userApiService;
-        _mapper = mapper;
         _emailService = emailService;
     }
 
@@ -36,9 +33,9 @@ public class AccountController : Controller
     {
         if (ModelState.IsValid)
         {
-            var user = await _userApiService.Login(_mapper.Map<LoginDTO>(model));
+            var user = await _userApiService.Login(model.Email, model.Password);
 
-            if (user.Email != null)
+            if (user.Email is not null)
             {
                 if (!user.EmailConfirmed)
                 {
