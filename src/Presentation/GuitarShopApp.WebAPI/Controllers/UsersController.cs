@@ -1,88 +1,38 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using GuitarShopApp.Application.DTO;
-using Microsoft.AspNetCore.Identity;
+using GuitarShopApp.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace GuitarShopApp.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController : ControllerBase
+public class UsersController(IIdentityService identityService) : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly SignInManager<IdentityUser> _signInManager;
-    private readonly IConfiguration _configuration;
-
-    public UsersController(UserManager<IdentityUser> userManager,
-                            SignInManager<IdentityUser> signInManager,
-                            IConfiguration configuration
-                            )
-    {
-        _userManager = userManager;
-        _signInManager = signInManager;
-        _configuration = configuration;
-    }
+    private readonly IIdentityService _identityService = identityService;
 
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser(UserDTO model)
     {
+        var result = await _identityService.RegisterAsync(model);
         
-        var user = new IdentityUser
+        if (!result.Succeeded)
         {
-            UserName = model.FullName,
-            Email = model.Email
-        };
-
-        var result = await _userManager.CreateAsync(user, model.Password);
-
-        if (result.Succeeded)
-        {
-            return StatusCode(201);
+            return BadRequest(result.Errors);
         }
 
-        return BadRequest(result.Errors);
+        return StatusCode(201, new { token = result.Token });
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDTO model)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var result = await _identityService.LoginAsync(model);
 
-        if(user == null)
+        if(!result.Succeeded)
         {
-            return BadRequest(new { message="Email is incorrect" });
+            return Unauthorized(result.Errors);
         }
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-
-        if(result.Succeeded)
-        {
-            return Ok(
-                new { token = GenerateJWT(user) }
-            );
-        }
-        return Unauthorized();
-    }
-    private object GenerateJWT(IdentityUser user)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_configuration.GetSection("AppSettings:Secret").Value ?? "");
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(
-                new Claim[] {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim(ClaimTypes.Name, user.UserName ?? "")
-                }
-            ),
-            Expires = DateTime.UtcNow.AddDays(1),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-
-        };
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token); 
+        return Ok(new { token = result.Token });
     }
 }

@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using GuitarShopApp.Application.DTO;
+using GuitarShopApp.Persistence.Services;
 using GuitarShopApp.WebUI.Models;
 
 namespace GuitarShopApp.WebUI.ApiService;

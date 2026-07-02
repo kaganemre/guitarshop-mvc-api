@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GuitarShopApp.WebUI.ApiService;
+namespace GuitarShopApp.Persistence.Services;
 
 public static class HttpClientExtensions
 {

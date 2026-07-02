@@ -16,8 +16,7 @@ public class AccountController : Controller
 
     public AccountController(
                             IEmailService emailService,
-                            UserApiService userApiService,
-                            IMapper mapper)
+                            UserApiService userApiService)
     {
         _userApiService = userApiService;
         _emailService = emailService;

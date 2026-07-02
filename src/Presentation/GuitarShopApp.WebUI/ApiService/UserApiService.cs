@@ -3,6 +3,7 @@ using System.Text.Json;
 using AutoMapper;
 using GuitarShopApp.Application.DTO;
 using GuitarShopApp.Domain.Entities;
+using GuitarShopApp.Persistence.Services;
 using GuitarShopApp.WebUI.Models;
 
 namespace GuitarShopApp.WebUI.ApiService;

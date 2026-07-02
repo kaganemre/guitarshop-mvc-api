@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure\GuitarShopApp.Infrastructure\GuitarShopApp.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\GuitarShopApp.Persistence\GuitarShopApp.Persistence.csproj" />
+    <ProjectReference Include="..\..\Core\GuitarShopApp.Application\GuitarShopApp.Application.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

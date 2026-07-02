@@ -1,3 +1,5 @@
+using GuitarShopApp.Persistence.Services;
+
 namespace GuitarShopApp.WebUI.ApiService;
 
 public abstract class AuthenticatedApiService<T> : GenericApiService<T> where T : class

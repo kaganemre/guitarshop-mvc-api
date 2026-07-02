@@ -1,9 +1,9 @@
 using GuitarShopApp.Application.Interfaces.Repositories;
+using GuitarShopApp.Application.Interfaces.Services;
 using GuitarShopApp.Application.Interfaces.UnitOfWork;
-using GuitarShopApp.Persistence.Context;
 using GuitarShopApp.Persistence.Repositories;
+using GuitarShopApp.Persistence.Services;
 using GuitarShopApp.Persistence.UnitOfWorks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,7 +20,8 @@ public static class ServiceRegistrationExtension
         serviceCollection.AddTransient<IOrderRepository, OrderRepository>();
         serviceCollection.AddTransient<IUserRepository, UserRepository>();
         serviceCollection.AddTransient<IUnitOfWork, UnitOfWork>();
-   
+        serviceCollection.AddTransient<IIdentityService, IdentityService>();
+
     }
 }
 
